@@ -13,7 +13,12 @@ def extract(filename):
     address2 = ''
     address3 = ''
     destination = ''
-
+    
+    cwd = os.getcwd()
+    dir = os.path.join("C:\\", cwd, "Programs")  # creates new folder
+    if not os.path.exists(dir):  # makes sure that the folder is not made multiple times
+        os.mkdir(dir)
+    destination = dir
     for f in z.namelist():
         # get directory name from file
         dirname = os.path.splitext(f)[0]
@@ -22,47 +27,46 @@ def extract(filename):
         # read inner zip file into bytes buffer
         content = io.BytesIO(z.read(f))
         zip_file = zipfile.ZipFile(content)
-
         file_path = ''  # remembers entire file address of last file found per iteration
-        filename = ''  # remembers name of last file found per iteration
-        cwd = os.getcwd()
-        dir = os.path.join("C:\\", cwd, "Programs")  # creates new folder
-        if not os.path.exists(dir):  # makes sure that the folder is not made multiple times
-            os.mkdir(dir)
         for file in zip_file.namelist():  # this iterates every directory found in the namelist buffer
-
             for root, subdirs, files in os.walk(dirname):  # this is how os.walk is used.
-                name = ''
-                for files in file:  # for some reason the files are found in characters so this loop iterates the name of the files found and updates the name sring variabe
-                    name += files
-                    file_path = os.path.join(root, name)
-                    #print(root)
-                    #print(file_path)
-                    filename = name
-
+                file_path = root
             zip_file.extract(file, dirname)
-            # this code was suppose to move the directory of the files found to the new folder created
-            # os.rename(os.path.abspath(name), os.path.join(dir, name))
-
-        #address = os.path.abspath(filename)
-        address = os.getcwd() + '/' + root + '/' + os.path.normpath(filename)
-        print(os.getcwd())
-        #address = Path(filename).absolute()
-        #raw_string = r"{}".format(address)
-        #print(type(address))
-        address3 = (r"C:\\Users\\shani\\PycharmProjects\\pythonProject\\077786745\\077786745\\Assignment1\\J.Obrien\\816001354")
+        address = cwd + '/' + file_path
         address = address.replace('\\', '/')
-        #print(address2)
-        print(
-            'walk_dir (absolute) = ' + address)  # just a test print statement showing file addresses
-        print('--------------------------------')
+        try: 
+            shutil.move(address, destination) 
+            print("File moved successfully.") 
+        # If source and destination are same 
+        except shutil.SameFileError: 
+            print("Source and destination represents the same file.") 
+        # If there is any permission issue 
+        except PermissionError: 
+            print("Permission to move the files have been denied.")  
+        # If the file already exist 
+        except  FileExistsError:
+            print("File Already Exist.")
+        # If file was not found 
+        except FileNotFoundError:
+            print("Error: File Not Found.")
+        # For other errors 
+        except: 
+            print("Error occurred while moving file.") 
+        delfile = cwd + '/' + dirname
+        delfile = delfile.replace('\\', '/')
+        try: 
+            shutil.rmtree(delfile)
+            print("Successfully removed unwanted files.") 
+        # If there is any permission issue 
+        except PermissionError: 
+            print("Permission to delete unwanted files denied.") 
+        # If file was not found 
+        except FileNotFoundError:
+            print("Error: File Not Found.")
+        # For other errors 
+        except: 
+            print("Error occurred while deleting file.")
+        
 
-        # Move files
-        destination = (r"C:/Users/shani/PycharmProjects/pythonProject/Programs")
-        shutil.move(address, destination)
-        #Path(address).rename(destination)
-
-    # run the function here
-
-
-extract('5678.zip')
+# run the function here
+extract('1234.zip')
